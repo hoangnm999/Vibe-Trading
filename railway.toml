@@ -1,0 +1,11 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# KHÔNG dùng startCommand ở đây — để CMD trong Dockerfile tự handle $PORT
+# startCommand override sẽ gây lỗi "$PORT không expand"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
