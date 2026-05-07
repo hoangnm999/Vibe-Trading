@@ -780,16 +780,18 @@ def _scan_symbol(symbol: str, cluster: str) -> dict | None:
 
     # Trigger detail
     trigger_labels = {
-        "stoch_k":     f"Stoch oversold ({ind['stoch_k']:.1f})",
-        "momentum_5d": f"Momentum 5d ({ind['momentum_5d']:+.1f}%)",
-        "volume_spike":f"Volume spike ({ind['volume_spike']:+.1f}x)",
-        "candle_body": f"Nến thân lớn ({ind['candle_body']:.2f})",
+        "stoch_k":      f"Stoch oversold ({ind['stoch_k']:.1f})",
+        "momentum_5d":  f"Momentum 5d ({ind['momentum_5d']:+.1f}%)",
+        "volume_spike": f"Volume spike ({ind['volume_spike']:+.1f}x)",
+        "candle_body":  f"Nến thân lớn ({ind['candle_body']:.2f})",
+        "consolidation":f"Sideways ({ind.get('consolidation', 0)*100:.0f}%)",
+        "vol_dry_up":   f"Vol kho ({ind.get('vol_dry_up', 0):+.2f}x)",
     }
     trigger_str = " + ".join(trigger_labels.get(t, t) for t in triggered)
 
     # Partial pass note
     partial_note = stats.get("partial_note", "") if stats.get("partial_pass") else ""
-    wfe_inflate_note = "⚠️ WFE inflate (dùng OOS_exp)" if stats.get("wfe_inflate") else ""
+    wfe_inflate_note = "⚠️ WFE inflate (dùng OOS exp)" if stats.get("wfe_inflate") else ""
 
     return {
         "symbol":        symbol,
@@ -895,7 +897,7 @@ def _format_signal(sig: dict, vni_info: dict,
             f"*💰 Position Sizing ({ACCOUNT_SIZE/1e6:.0f}M account):*",
             f"  {ps['size_label']} — risk {ps['risk_pct']}% "
             f"= {ps['risk_amount']/1e6:.1f}M",
-            f"  → Mua: *{ps['qty']:,} cổ* (~{ps['value']/1e6:.1f}M, "
+            f"  → Mua: {ps['qty']:,} cổ (~{ps['value']/1e6:.1f}M, "
             f"chiếm {ps['exposure']}% vốn)",
             f"  → Max loss nếu chạm SL: "
             f"~{ps['risk_amount']/1e6:.1f}M ({ps['risk_pct']}% account)",
@@ -977,9 +979,9 @@ def _format_morning_scan(
             # Ghi chú nếu mã này cũng thuộc cluster khác
             dual_tag = ""
             if sig["symbol"] in MR_SYMBOLS:
-                dual_tag = " _(+MR)_"
+                dual_tag = " (+MR)"
             elif sig["symbol"] in MOM_SYMBOLS:
-                dual_tag = " _(+MOM)_"
+                dual_tag = " (+MOM)"
             sig_text = "\n" + _format_signal(sig, vni_info, extra_tag=dual_tag) + "\n"
             if len(current) + len(sig_text) > 3800:
                 messages.append(current)
